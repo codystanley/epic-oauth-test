@@ -1,7 +1,7 @@
 <?php
 
-/* -----------------------------------------------------------------------------
-    This file handes the redirect after the user logs into Epic from index.html.
+/* ------------------------------------------------------------------------------
+    This file handes the redirect after the user logs in to Epic from index.html.
     It retrieves the authorization code and exchanges it for an OAuth2 token.
 ------------------------------------------------------------------------------ */
 
@@ -21,14 +21,14 @@ $db = new mysqli(
 /* Get authorization code and exchange for a token */
 
 /* 1. Fetch Client Credentials from DB*/
-$stmt = $db->prepare("SELECT client_id, client_secret FROM client_credentials WHERE id = ?");
-$stmt->bind_param("i", 1); 
+$stmt = $db->prepare("SELECT client_id, client_secret, token_endpoint FROM client_credentials WHERE id = 1"); // No need for bind_param here
 $stmt->execute();
 $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     $row = $result->fetch_assoc();
     $clientId = $row['client_id'];
     $clientSecret = $row['client_secret'];
+    $tokenEndpoint = $row['token_endpoint'];
 }
 
 session_start(); // Start the session
@@ -41,7 +41,7 @@ $client = new GuzzleHttp\Client();
 
 /* 4. Token Request */ 
 try {
-    $response = $client->request('POST', 'https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token', [
+    $response = $client->request('POST', $tokenEndpoint, [
         'form_params' => [
             'grant_type' => 'authorization_code', 
             'code' => $authorizationCode,
@@ -59,6 +59,7 @@ try {
         $tokenData = json_decode($response->getBody(), true);
         // Store token in the session
         $_SESSION['access_token'] = $tokenData['access_token'];
+        // Load the search application - And we're off!
         header('Location: /search.php');
         exit;
 
@@ -69,14 +70,14 @@ try {
         //echo "</pre>";
 
     } else {
-        /* 4b  Handle errors gracefully */
+        /* 4b  Handle token exchange errors gracefully */
 
         // Log the error
         error_log("Token exchange failed. HTTP status: " . $response->getStatusCode());
         error_log("Response body: " . $response->getBody()->getContents()); 
     
         // Display an error message to the user (redirect or show a message)
-        header('Location: /error.php?message=token_exchange_failed'); 
+        header('Location: /error.php?message=token_exchange_failed');
     }
 
 /* 5. Handle Guzzle Errors */

@@ -28,7 +28,7 @@ if (isset($_SESSION['access_token'])) {
     <div id="dobSearchForm" style="display: none;"> 
         <form id="patientSearchForm" action="" method="GET"> 
             <div class="mb-3">
-                <label for="birthdate" class="form-label">Date of Birth (YYYY-MM-DD):</label>
+                <label for="birthdate" class="form-label">Date of Birth:</label>
                 <input type="date" class="form-control" id="birthdate" name="birthdate" required>
             </div>
             <div class="mb-3">
