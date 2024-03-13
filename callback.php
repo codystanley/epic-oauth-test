@@ -1,5 +1,10 @@
 <?php
 
+/* -----------------------------------------------------------------------------
+    This file handes the redirect after the user logs into Epic from index.html.
+    It retrieves the authorization code and exchanges it for an OAuth2 token.
+------------------------------------------------------------------------------ */
+
 require_once 'vendor/autoload.php'; // Guzzle loader. Guzzle makes it easier to handle HTTP requests in PHP.
 require_once 'config.php';
 
