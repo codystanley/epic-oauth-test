@@ -1,12 +1,30 @@
 <?php
 
+// ... Database connection setup - Replace with your own method ... 
+$db = new mysqli('localhost', 'root', 'password', 'epic_oauth');  
+if ($db->connect_error) {
+    die("Connection failed: " . $db->connect_error);  
+}
+
+// ... Logic to get the authorization code from the request...
+
+// ... Fetch Client Credentials
+$stmt = $db->prepare("SELECT client_id, client_secret FROM client_credentials WHERE id = ?");
+$stmt->bind_param("i", 1); 
+$stmt->execute();
+$result = $stmt->get_result();
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $clientId = $row['client_id'];
+    $clientSecret = $row['client_secret'];
+}
+
 session_start(); // Start the session
 
 // 1. Retrieve Authorization Code 
 $authorizationCode = $_POST['code'];  
 
 // 2. Client and Redirect URI (Match Registered Values)
-$clientId = '3c76e42a-e3e6-496c-82a9-e36b4bbd0408'; 
 $redirectUri = 'http://localhost:3000/callback'; // Adapt if needed
 
 // 3. Guzzle Setup
